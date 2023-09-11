@@ -28,6 +28,8 @@ import os
 from dotenv import load_dotenv
 import folium
 
+from geopy.distance import great_circle
+
 # Import dotenv 
 load_dotenv()
 FoliumStartpointLat = os.getenv('FoliumStartpointLat')
@@ -37,6 +39,12 @@ FoliumStartZoom = os.getenv('FoliumStartZoom')
 
 # Inittialize Folium Map
 FoliumMap = folium.Map(location=[FoliumStartpointLat, FoliumStartpointLon], zoom_start= FoliumStartZoom, max_zoom = FoliumMaxZoom)
+
+def calculate_distance(coord1, coord2):
+    return great_circle(coord1, coord2).kilometers
+
+prev_coord = None  # Um die vorherige Koordinate zu verfolgen
+total_distance = 0  # Um die gesamte Entfernung zu verfolgen
 
 # Read the file with GPS data (replace 'your_data_file.txt' with your file's path)
 with open('logs/location_log.txt', 'r') as LogFile:
@@ -89,7 +97,29 @@ for lat, lon, imei, speed, heading, datetime, gpssatellite, accuracy in zip(lati
     info_text += f"<b>Accuracy:</b> {accuracy}<br>"
     info_text += f"<b>Satellites:</b> {gpsSatellite}"
 
-    folium.Marker([lat, lon], popup=folium.Popup(info_text, max_width=300), tooltip=f"IMEI: {imei}").add_to(FoliumMap)
+    if prev_coord:
+        current_coord = (lat, lon)
+        distance = calculate_distance(prev_coord, current_coord)
+        total_distance += distance
+        info_text += f"<br><b>Distance:</b> {distance:.4f} km"
+
+    prev_coord = (lat, lon)
+
+    folium.Marker(
+        [lat, lon],
+        popup=folium.Popup(info_text, max_width=300),
+        tooltip=f"IMEI: {imei}"
+    ).add_to(FoliumMap)
+
+# Show the total distance traveled in the tooltip of the last marker
+if total_distance > 0:
+    final_popup_text = info_text + f"<br><b>Total distance:</b> {total_distance:.2f} km"
+    folium.Marker(
+        [latitude, longitude],
+        popup=folium.Popup(final_popup_text, max_width=300),
+        tooltip=f"IMEI: {ClientIMEI}",
+        icon=folium.Icon(color="red",icon="info-sign")
+    ).add_to(FoliumMap)
 
 # Create a PolyLine to connect the markers
 coordinates = list(zip(latitudes, longitudes))
