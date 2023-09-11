@@ -11,6 +11,8 @@ datetime = "*"
 python-dotenv = "*"
 python-dateutil = "*"
 python-math = "*"
+folium = "*"
+geopy = "*"
 
 [requires]
 python_version = "3.8"
