@@ -61,7 +61,7 @@ for lat, lon in zip(latitudes, longitudes):
 
 # Create a PolyLine to connect the markers
 coordinates = list(zip(latitudes, longitudes))
-folium.PolyLine(locations=coordinates, color='blue').add_to(m)
+folium.PolyLine(locations=coordinates, color='blue').add_to(FoliumMap)
 
 # Save the map to an HTML file
-m.save('log_gps_map.html')
+FoliumMap.save('log_gps_map.html')
