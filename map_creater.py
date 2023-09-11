@@ -42,22 +42,54 @@ FoliumMap = folium.Map(location=[FoliumStartpointLat, FoliumStartpointLon], zoom
 with open('logs/location_log.txt', 'r') as LogFile:
     lines = LogFile.readlines()
 
-# Lists to store latitude and longitude coordinates
+# Lists to store values
+serveDateTimes = []
+clientIpAdresses = []
+ClientIMEIs = []
+locationDateTimes = []
+gpsSatellites = []
 latitudes = []
 longitudes = []
+accuracys = []
+gpsSpeeds = []
+headings = []
 
 # Iterate through lines and extract GPS coordinates
 for line in lines:
     if 'GPS' in line:
         parts = line.split('\t')
-        latitude = float(parts[-5])
-        longitude = float(parts[-4])
+        serveDateTime = str(parts[0])
+        clientIpAdress = str(parts[1])
+        ClientIMEI = int(parts[2])
+        locationDateTime = str(parts[4])
+        gpsSatellite = int(parts[6])
+        latitude = float(parts[7])
+        longitude = float(parts[8])
+        accuracy = float(parts[9])
+        gpsSpeed = float(parts[10])
+        heading = float(parts[11])
+        
+        serveDateTimes.append(serveDateTime)
+        clientIpAdresses.append(clientIpAdress)
+        ClientIMEIs.append(ClientIMEI)
+        locationDateTimes.append(locationDateTime)
+        gpsSatellites.append(gpsSatellite)
         latitudes.append(latitude)
         longitudes.append(longitude)
+        accuracys.append(accuracy)
+        gpsSpeeds.append(gpsSpeed)
+        headings.append(heading)
 
 # Add markers for each GPS coordinate
-for lat, lon in zip(latitudes, longitudes):
-    folium.Marker([lat, lon]).add_to(FoliumMap)
+for lat, lon, imei, speed, heading, datetime, gpssatellite, accuracy in zip(latitudes, longitudes, ClientIMEIs, gpsSpeeds, headings, locationDateTimes, gpsSatellites, accuracys):
+    info_text = f"<b>IMEI:</b> {imei}<br>"
+    info_text += f"<b>Speed:</b> {speed} km/h<br>"
+    info_text += f"<b>Heading:</b> {heading}°<br>"
+    info_text += f"<b>Date/Time:</b> {datetime}<br>"
+    info_text += f"<b>Accuracy:</b> {accuracy}<br>"
+    info_text += f"<b>Satellites:</b> {gpsSatellite}"
+
+    folium.Marker([lat, lon], popup=folium.Popup(info_text, max_width=300), tooltip=f"IMEI: {imei}").add_to(FoliumMap)
 
 # Create a PolyLine to connect the markers
 coordinates = list(zip(latitudes, longitudes))
