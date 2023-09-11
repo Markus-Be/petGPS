@@ -36,7 +36,7 @@ FoliumMaxZoom = os.getenv('FoliumMaxZoom')
 FoliumStartZoom = os.getenv('FoliumStartZoom')
 
 # Inittialize Folium Map
-FoliumMap = folium.Map(location=[FoliumStartpointLat, FoliumStartpointLon], zoom_start= FoliumStartpointLat, max_zoom = FoliumStartZoom)
+FoliumMap = folium.Map(location=[FoliumStartpointLat, FoliumStartpointLon], zoom_start= FoliumStartZoom, max_zoom = FoliumMaxZoom)
 
 # Read the file with GPS data (replace 'your_data_file.txt' with your file's path)
 with open('logs/location_log.txt', 'r') as LogFile:
